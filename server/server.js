@@ -9,7 +9,7 @@ require ('dotenv').config();
 
 //CONECCTION AND SELL
  mongoose.Promise = global.Promise;
- mongoose.connect(process.env.DATABASE);
+ mongoose.connect(process.env.DATABASE, { useNewUrlParser: true, useCreateIndex: true } );
 
 
 // mongoose.connect(mongoUrl, { useNewUrlParser: true, useCreateIndex: true },  (err) => {
