@@ -36,10 +36,57 @@ const { Wood } = require('./models/wood');
 const { Product } = require('./models/product');
 
 //Middlewares
+
 const { auth } = require('./middleware/auth');
 const { admin } = require('./middleware/admin');
 
 //PRODUCTS
+
+//BY ARRIVAL
+//ARTICLE /articles?sortBy=createdAt&order=desc&limit=4
+//BY SELL
+// /articles?sortBy=sold&order=desc&limit=4, limit=100&skip=5
+app.get('/api/product/articles', (req,res) => {
+  let order = req.query.order ? req.query.order : 'asc';
+  let sortBy = req.query.sortBy ? req.query.sortBy : ""; 
+  let limit = req.query.limit ? parseInt(req.query.limit) : 100;
+  
+  Product.
+  find().
+populate('brand').
+populate('wood').
+sort ([[sortBy,order]]).
+limit(limit).
+exec((err,articles) => {
+  if(err) return res.status(400).send(err);
+  res.send(articles)
+})
+})
+
+
+//ID
+///api/product/article?id=kdkd,kdkd,kdkd&type=single,array
+app.get('/api/product/articles_by_id', (req,res) => {
+  let type = req.query.type;
+  let items = req.query.id;
+  //it´s possible node for react 
+  if(type === "array"){
+    let ids = req.query.id.split (',');
+    items = [];
+    items = ids.map(item => {
+      return mongoose.Types.ObjectId(item)
+    })
+  }
+  Product.find({ '_id':{$in:items}}).
+  populate('brand').
+  populate('wood').
+  exec((err,docs) => {
+    return res.status(200).send(docs)
+
+  })
+});
+
+//ARTICLE
 app.post('/api/product/article',auth, admin,(req,res) => {
 const product = new Product(req.body);
 product.save((err,doc) => {
