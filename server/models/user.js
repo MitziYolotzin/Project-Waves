@@ -82,6 +82,19 @@ userSchema.methods.generateToken = function(cb) {
   });
 };
 
+//auth token
+userSchema.statics.findByToken = function(token, cb) {
+  var user = this;
+  //verify correct token
+  jwt.verify(token, process.env.SECRET, function(err, decode) {
+    user.findOne({ "_id": decode, "token": token }, function(err, user) {
+      if (err) return cb(err);
+      //return user data from DB
+      cb(null, user);
+    });
+  });
+};
+
 //MODEL-model, esquema, coleccion donde se guarda "users"
 const User = mongoose.model("User", userSchema);
 //EXPORT
