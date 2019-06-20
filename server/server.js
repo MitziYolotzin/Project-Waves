@@ -17,12 +17,6 @@ mongoose.connect(
   }
 );
 
-// mongoose.connect(mongoUrl, { useNewUrlParser: true, useCreateIndex: true },  (err) => {
-//     if (err){
-//         return err
-//     }
-//     console.log("conectado a mongo")
-//   });
 
 //MIDDLEWARE
 app.use(bodyParser.urlencoded({ useNewUrlParser: true, extended: true }));
@@ -30,15 +24,15 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 //MODELS
-const { User } = require('./models/user');
-const { Brand } = require('./models/brand');
-const { Wood } = require('./models/wood');
-const { Product } = require('./models/product');
+const { User } = require("./models/user");
+const { Brand } = require("./models/brand");
+const { Wood } = require("./models/wood");
+const { Product } = require("./models/product");
 
 //Middlewares
 
-const { auth } = require('./middleware/auth');
-const { admin } = require('./middleware/admin');
+const { auth } = require("./middleware/auth");
+const { admin } = require("./middleware/admin");
 
 //PRODUCTS
 
@@ -46,103 +40,94 @@ const { admin } = require('./middleware/admin');
 //ARTICLE /articles?sortBy=createdAt&order=desc&limit=4
 //BY SELL
 // /articles?sortBy=sold&order=desc&limit=4, limit=100&skip=5
-app.get('/api/product/articles', (req,res) => {
-  let order = req.query.order ? req.query.order : 'asc';
-  let sortBy = req.query.sortBy ? req.query.sortBy : ""; 
+app.get("/api/product/articles", (req, res) => {
+  let order = req.query.order ? req.query.order : "asc";
+  let sortBy = req.query.sortBy ? req.query.sortBy : "";
   let limit = req.query.limit ? parseInt(req.query.limit) : 100;
-  
-  Product.
-  find().
-populate('brand').
-populate('wood').
-sort ([[sortBy,order]]).
-limit(limit).
-exec((err,articles) => {
-  if(err) return res.status(400).send(err);
-  res.send(articles)
-})
-})
 
+  Product.find()
+    .populate("brand")
+    .populate("wood")
+    .sort([[sortBy, order]])
+    .limit(limit)
+    .exec((err, articles) => {
+      if (err) return res.status(400).send(err);
+      res.send(articles);
+    });
+});
 
 //ID
 ///api/product/article?id=kdkd,kdkd,kdkd&type=single,array
-app.get('/api/product/articles_by_id', (req,res) => {
+app.get("/api/product/articles_by_id", (req, res) => {
   let type = req.query.type;
   let items = req.query.id;
-  //it´s possible node for react 
-  if(type === "array"){
-    let ids = req.query.id.split (',');
+  //it´s possible node for react
+  if (type === "array") {
+    let ids = req.query.id.split(",");
     items = [];
     items = ids.map(item => {
-      return mongoose.Types.ObjectId(item)
-    })
+      return mongoose.Types.ObjectId(item);
+    });
   }
-  Product.find({ '_id':{$in:items}}).
-  populate('brand').
-  populate('wood').
-  exec((err,docs) => {
-    return res.status(200).send(docs)
-
-  })
+  Product.find({ _id: { $in: items } })
+    .populate("brand")
+    .populate("wood")
+    .exec((err, docs) => {
+      return res.status(200).send(docs);
+    });
 });
 
 //ARTICLE
-app.post('/api/product/article',auth, admin,(req,res) => {
-const product = new Product(req.body);
-product.save((err,doc) => {
-  if(err) return res.json({success:false,err});
-  res.status(200).json({
-    success: true,
-    article: doc
-  })
-})
-})
-
+app.post("/api/product/article", auth, admin, (req, res) => {
+  const product = new Product(req.body);
+  product.save((err, doc) => {
+    if (err) return res.json({ success: false, err });
+    res.status(200).json({
+      success: true,
+      article: doc
+    });
+  });
+});
 
 //WOODS
-app.post('/api/product/wood',auth,admin,(req,res) => {
-const wood = new Wood(req.body);
+app.post("/api/product/wood", auth, admin, (req, res) => {
+  const wood = new Wood(req.body);
 
-wood.save((err,doc) => {
-  if(err) return res.json({success:false,err});
-  res.status(200).json({
-    success: true,
-    wood: doc
-  })
-})
-})
+  wood.save((err, doc) => {
+    if (err) return res.json({ success: false, err });
+    res.status(200).json({
+      success: true,
+      wood: doc
+    });
+  });
+});
 
-app.get('/api/product/woods', (req,res) => {
-  Wood.find({},(err,woods) => {
-    if(err) return res.status(400).send(err);
-    res.status(200).send(woods)
-  })
-})
-
-
+app.get("/api/product/woods", (req, res) => {
+  Wood.find({}, (err, woods) => {
+    if (err) return res.status(400).send(err);
+    res.status(200).send(woods);
+  });
+});
 
 //BRAND
-app.post('/api/product/brand',auth,admin,(req, res) => {
-const brand = new Brand(req.body);
-//doc back from mongoose, mongo DB. Save return whenever we just enter to the database
-brand.save((err, doc)=>{
-  if(err) return res.json({success:false, err})
-  res.status(200).json({
-    success:true, 
-    brand:doc
-  })
-})
-})
+app.post("/api/product/brand", auth, admin, (req, res) => {
+  const brand = new Brand(req.body);
+  //doc back from mongoose, mongo DB. Save return whenever we just enter to the database
+  brand.save((err, doc) => {
+    if (err) return res.json({ success: false, err });
+    res.status(200).json({
+      success: true,
+      brand: doc
+    });
+  });
+});
 
-app.get('/api/product/brands', (req, res) => {
-Brand.find({}, (err, brands) => {
-if(err) return res.status(400).send(err);
-res.status(200).send(brands)
-})
-})
-
-
-
+app.get("/api/product/brands", (req, res) => {
+  Brand.find({}, (err, brands) => {
+    if (err) return res.status(400).send(err);
+    res.status(200).send(brands);
+  });
+});
 
 //USERS
 
@@ -180,13 +165,12 @@ app.post("/api/users/register", (req, res) => {
 //LOGIN - Send user and password
 app.post("/api/users/login", (req, res) => {
   //find the email in DB, and user in DB
-  User.findOne({ 'email': req.body.email }, (err, user) => {
+  User.findOne({ email: req.body.email }, (err, user) => {
     if (!user)
       return res.json({
         loginSuccess: false,
         message: "Auth failed, email not found"
       });
-
 
     //cb User schema comparePassword, passsword check with DB
     //check pass, isMatch is true
@@ -208,12 +192,9 @@ app.post("/api/users/login", (req, res) => {
   });
 });
 
- //LOGOUT, first check DB, then auth middleware,
- app.get("/api/users/logout", auth, (req, res) => {
-  User.findOneAndUpdate(
-    { _id: req.user.id },
-     { token: '' },
-      (err, doc) => {
+//LOGOUT, first check DB, then auth middleware,
+app.get("/api/users/logout", auth, (req, res) => {
+  User.findOneAndUpdate({ _id: req.user.id }, { token: "" }, (err, doc) => {
     if (err) return res.json({ success: false, err });
     //destroy token
     return res.status(200).json({
@@ -221,7 +202,6 @@ app.post("/api/users/login", (req, res) => {
     });
   });
 });
-
 
 //PORT
 const port = process.env.PORT || 3002;

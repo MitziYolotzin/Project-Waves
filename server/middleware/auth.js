@@ -13,7 +13,7 @@ let auth = (req, res, next) => {
         isAuth: false,
         error: true
       });
-    //check with auth function in server, request receiving from rout
+    //check with auth function in server, request to receive from rout
     req.token = token;
     req.user = user;
     next();
