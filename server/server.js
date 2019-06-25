@@ -165,7 +165,7 @@ app.post("/api/users/register", (req, res) => {
 //LOGIN - Send user and password
 app.post("/api/users/login", (req, res) => {
   //find the email in DB, and user in DB
-  User.findOne({ email: req.body.email }, (err, user) => {
+  User.findOne({ 'email': req.body.email }, (err, user) => {
     if (!user)
       return res.json({
         loginSuccess: false,
@@ -194,7 +194,7 @@ app.post("/api/users/login", (req, res) => {
 
 //LOGOUT, first check DB, then auth middleware,
 app.get("/api/users/logout", auth, (req, res) => {
-  User.findOneAndUpdate({ _id: req.user.id }, { token: "" }, (err, doc) => {
+  User.findOneAndUpdate({ _id: req.user.id }, { token: '' }, (err, doc) => {
     if (err) return res.json({ success: false, err });
     //destroy token
     return res.status(200).json({
@@ -207,5 +207,5 @@ app.get("/api/users/logout", auth, (req, res) => {
 const port = process.env.PORT || 3002;
 
 app.listen(port, () => {
-  console.log("Server Running ");
+  console.log(`Server Running on ${port}` );
 });

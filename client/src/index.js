@@ -1,9 +1,9 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import "./Resources/css/styles.css";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './Resources/css/styles.css';
 //import App from './App';
-import { BrowserRouter } from "react-router-dom";
-import Routes from "./routes";
+import { BrowserRouter } from 'react-router-dom';
+import Routes from './routes';
 
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';

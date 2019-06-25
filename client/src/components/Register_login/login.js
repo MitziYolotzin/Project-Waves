@@ -1,21 +1,25 @@
-import React, { Component } from "react";
-import FormField from "../utils/Form/formfield";
-import { update, generateData, isFormValid } from '../utils/Form/formActions'
+import React, { Component } from 'react';
+import FormField from '../utils/Form/formfield';
+import { update, generateData, isFormValid } from '../utils/Form/formActions';
+import { withRouter } from 'react-router-dom';
 
-import { connect } from "react-redux";
+import { connect } from 'react-redux';
+import { loginUser } from '../../actions/user_actions';
+
+//login is child of index
 
 class Login extends Component {
   state = {
     formError: false,
-    formSuccess: "",
+    formSuccess: '',
     formdata: {
       email: {
-        element: "input",
-        value: "",
+        element: 'input',
+        value: '',
         config: {
-          name: "email_input",
-          type: "email",
-          placeholder: "Enter your email"
+          name: 'email_input',
+          type: 'email',
+          placeholder: 'Enter your email'
         },
         validation: {
           required: true,
@@ -26,78 +30,81 @@ class Login extends Component {
         validationMessage: ""
       },
       password: {
-        element: "input",
-        value: "",
+        element: 'input',
+        value: '',
         config: {
-          name: "password_input",
-          type: "password",
-          placeholder: "Enter your password"
+          name: 'password_input',
+          type: 'password',
+          placeholder: 'Enter your password'
         },
         validation: {
           required: true
         },
         valid: false,
         touched: false,
-        validationMessage: ""
+        validationMessage: ''
       }
     }
   };
 
   updateForm = (element) => {
-    const newFormData = update(element,this.state.formdata,'login');
-this.setState({
-  formError: false,
-  formdata: newFormData
-})
+    const newFormData = update(element, this.state.formdata, 'login');
+    this.setState({
+      formError: false,
+      formdata: newFormData
+    });
   };
 
   submitForm = (event) => {
-event.preventDefault();
+    event.preventDefault();
 
-let dataToSubmit = generateData(this.state.formdata,'login');
-let formIsValid = isFormValid(this.state.formdata, 'login');
+    let dataToSubmit = generateData(this.state.formdata, 'login');
+    let formIsValid = isFormValid(this.state.formdata, 'login');
 
-if(formIsValid){
-  console.log(dataToSubmit);
-
-}else{
-  this.setState({
-    formError: true
-  })
-}
-
-
+    if (formIsValid) {
+      //  console.log(dataToSubmit);
+      //response come function user_actions, user reducer catching
+      this.props.dispatch(loginUser(dataToSubmit)).then(response => {
+        if (response.payload.loginSucces) {
+          console.log(response.payload);
+          this.props.history.push('/user/dashboard');
+        } else {
+          this.setState({
+            formError: true
+          });
+        }
+      });
+    } else {
+      this.setState({
+        formError: true
+      });
+    }
   };
 
   render() {
     return (
       <div className="signin_wrapper">
-        <form onSubmit={event => this.submitForm(event)}>
+        <form onSubmit={(event) => this.submitForm(event)}>
           <FormField
-            id={'email'}
+            id={"email"}
             formdata={this.state.formdata.email}
             change={(element) => this.updateForm(element)}
           />
 
           <FormField
-            id={'password'}
+            id={"password"}
             formdata={this.state.formdata.password}
             change={(element) => this.updateForm(element)}
           />
 
-{this.state.formError ?
-  <div className="error_label">
-Please check your data
-  </div>
-:null}
-<button onClick={(event) => this.submitForm(event)}>
-Log in
-</button>
-
+          {this.state.formError ? 
+            <div className="error_label">Please check your data</div>
+           : null}
+          <button onClick={(event) => this.submitForm(event)}>Log in</button>
         </form>
       </div>
     );
   }
 }
-
-export default connect()(Login);
+//router for props injected to login
+export default connect()(withRouter(Login));
